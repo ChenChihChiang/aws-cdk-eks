@@ -23,7 +23,7 @@ class EksClusterStack(core.Stack):
         asg_worker_nodes = cluster.add_capacity(
             'worker-node',
             instance_type=ec2.InstanceType('t3.medium'),
-            spot_price=0.0544,
+            spot_price="0.0544",
             desired_capacity=2,
         )
 

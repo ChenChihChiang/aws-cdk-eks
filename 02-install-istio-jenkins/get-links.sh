@@ -14,8 +14,5 @@ echo "http://${ep}:15030"
 echo "tracing"
 echo "http://${ep}:15032"
 
-echo "jenkins"
-echo "http://${ep}"
-
 echo "go-app-example"
 echo "http://${ep}/go-app-example"

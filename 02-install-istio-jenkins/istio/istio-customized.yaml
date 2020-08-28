@@ -44,12 +44,6 @@ gateways:
       - port: 15443
         targetPort: 15443
         name: tls
-      ##=== Additional Ports =======================##
-      - port: 8080
-        targetPort: 8080
-        name: http-custom
-      ##____________________________________________##
-
 #
 # sidecar-injector webhook configuration, refer to the
 # charts/sidecarInjectorWebhook/values.yaml for detailed configuration

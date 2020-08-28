@@ -14,7 +14,8 @@ class EksClusterStack(core.Stack):
         super().__init__(scope, name, **kwargs)
 
         cluster = eks.Cluster(
-            self, 'jenkins-workshop-eks-control-plane',
+            self, 'isito-eks-control-plane',
+            name="istio-eks",
             vpc=vpc,
             default_capacity=0
         )
@@ -23,45 +24,6 @@ class EksClusterStack(core.Stack):
             'worker-node',
             instance_type=ec2.InstanceType('t3.medium'),
             desired_capacity=2,
-        )
-
-        asg_jenkins_slave = cluster.add_capacity(
-            'worker-node-jenkins-slave',
-            instance_type=ec2.InstanceType('t3.medium'),
-            desired_capacity=1,
-            bootstrap_options=eks.BootstrapOptions(
-                kubelet_extra_args='--node-labels jenkins=slave --register-with-taints jenkins=slave:NoSchedule',
-                docker_config_json=read_docker_daemon_resource('kubernetes_resources/docker-daemon.json')
-            )
-        )
-        
-        asg_worker_nodes.add_to_role_policy(iam.PolicyStatement(
-            actions=[
-                'secretsmanager:GetSecretValue',
-                'secretsmanager:ListSecrets'
-                ],
-            resources=["*"]
-            )
-        )
-
-        asg_jenkins_slave.add_to_role_policy(iam.PolicyStatement(
-            actions=[
-                'ecr:CompleteLayerUpload',
-                'ecr:InitiateLayerUpload',
-                'ecr:PutImage',
-                'ecr:UploadLayerPart'
-                ],
-            resources=["*"]
-            )
-        )
-
-        asg_worker_nodes.connections.allow_from(
-            asg_jenkins_slave,
-            ec2.Port.all_traffic()
-        )
-        asg_jenkins_slave.connections.allow_from(
-            asg_worker_nodes,
-            ec2.Port.all_traffic()
         )
 
         eks_master_role = iam.Role(

@@ -15,7 +15,7 @@ vpc_stack = VpcStack(app, 'vpc-stack', env=aws_account)
 
 # EKS
 
-eks_cluster_stack = EksClusterStack(app, 'jenkins-workshop-eks-cluster', vpc=vpc_stack.eks_vpc, env=aws_account)
+eks_cluster_stack = EksClusterStack(app, 'istio-eks-cluster', vpc=vpc_stack.eks_vpc, env=aws_account)
 
 eks_cluster_stack.add_dependency(vpc_stack)
 

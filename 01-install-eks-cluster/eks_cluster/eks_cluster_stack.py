@@ -24,7 +24,7 @@ class EksClusterStack(core.Stack):
             'worker-node',
             instance_type=ec2.InstanceType('t3.medium'),
             spot_price="0.0544",
-            desired_capacity=2,
+            desired_capacity=2
         )
 
         eks_master_role = iam.Role(

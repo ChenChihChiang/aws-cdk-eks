@@ -15,7 +15,7 @@ class EksClusterStack(core.Stack):
 
         cluster = eks.Cluster(
             self, 'isito-eks-control-plane',
-            name="istio-eks",
+            cluster_name="istio-eks",
             vpc=vpc,
             default_capacity=0
         )

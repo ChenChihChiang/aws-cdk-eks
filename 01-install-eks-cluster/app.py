@@ -19,8 +19,4 @@ eks_cluster_stack = EksClusterStack(app, 'istio-eks-cluster', vpc=vpc_stack.eks_
 
 eks_cluster_stack.add_dependency(vpc_stack)
 
-# ECR
-
-ecr_repository_stack = EcrStack(app, 'ecr-repository', env=aws_account)
-
 app.synth()

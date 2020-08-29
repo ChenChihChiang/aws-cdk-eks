@@ -13,6 +13,3 @@ echo "http://${ep}:15030"
 
 echo "tracing"
 echo "http://${ep}:15032"
-
-echo "go-app-example"
-echo "http://${ep}/go-app-example"

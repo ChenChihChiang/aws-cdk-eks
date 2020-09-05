@@ -26,18 +26,50 @@ aws eks update-kubeconfig --region ap-northeast-1 --name $EKS_CLUSTER_NAME --rol
 
 kubectl config use-context $EKS_CLUSTER_ARN
 
-# install istio
+# install service mesh
 
 helm init --service-account tiller --wait
 
-helm repo add istio.io https://storage.googleapis.com/istio-release/releases/1.5.0/charts/
+curl -o pre_upgrade_check.sh https://raw.githubusercontent.com/aws/eks-charts/master/stable/appmesh-controller/upgrade/pre_upgrade_check.sh
 
-helm upgrade --install istio-init --namespace istio-system istio.io/istio-init --wait
+chmod 755 ./pre_upgrade_check.sh
 
-sleep 10;
+./pre_upgrade_check.sh
 
-helm upgrade --install istio --namespace istio-system -f istio/istio-customized.yaml istio.io/istio --wait
+helm repo add eks https://aws.github.io/eks-charts
 
-kubectl apply -f istio/addons
+kubectl apply -k "https://github.com/aws/eks-charts/stable/appmesh-controller/crds?ref=master"
 
-kubectl apply -f istio/http-gateway.yaml
+kubectl create ns appmesh-system
+
+export CLUSTER_NAME=`aws eks list-clusters | grep istio-eks | cut -d '"' -s -f2`
+export AWS_REGION=ap-northeast-1
+
+eksctl create fargateprofile --cluster $CLUSTER_NAME --name appmesh-system --namespace appmesh-system
+
+
+eksctl utils associate-iam-oidc-provider \
+    --region=$AWS_REGION \
+    --cluster $CLUSTER_NAME \
+    --approve
+
+
+eksctl create iamserviceaccount \
+    --cluster $CLUSTER_NAME \
+    --namespace appmesh-system \
+    --name appmesh-controller \
+    --attach-policy-arn  arn:aws:iam::aws:policy/AWSCloudMapFullAccess,arn:aws:iam::aws:policy/AWSAppMeshFullAccess \
+    --override-existing-serviceaccounts \
+    --approve
+
+
+helm upgrade -i appmesh-controller eks/appmesh-controller \
+    --namespace appmesh-system \
+    --set region=$AWS_REGION \
+    --set serviceAccount.create=false \
+
+
+kubectl get deployment appmesh-controller \
+    -n appmesh-system \
+    -o json  | jq -r ".spec.template.spec.containers[].image" | cut -f2 -d ':'
+    --set serviceAccount.name=appmesh-controller

@@ -45,9 +45,6 @@ kubectl create ns appmesh-system
 export CLUSTER_NAME=`aws eks list-clusters | grep istio-eks | cut -d '"' -s -f2`
 export AWS_REGION=ap-northeast-1
 
-eksctl create fargateprofile --cluster $CLUSTER_NAME --name appmesh-system --namespace appmesh-system
-
-
 eksctl utils associate-iam-oidc-provider \
     --region=$AWS_REGION \
     --cluster $CLUSTER_NAME \

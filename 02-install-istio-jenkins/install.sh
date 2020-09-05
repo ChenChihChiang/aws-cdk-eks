@@ -45,13 +45,17 @@ kubectl create ns appmesh-system
 export CLUSTER_NAME=`aws eks list-clusters | grep istio-eks | cut -d '"' -s -f2`
 export AWS_REGION=ap-northeast-1
 
-eksctl utils associate-iam-oidc-provider \
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+
+chmod 755 /tmp/eksctl
+
+/tmp/eksctl utils associate-iam-oidc-provider \
     --region=$AWS_REGION \
     --cluster $CLUSTER_NAME \
     --approve
 
 
-eksctl create iamserviceaccount \
+/tmp/eksctl create iamserviceaccount \
     --cluster $CLUSTER_NAME \
     --namespace appmesh-system \
     --name appmesh-controller \

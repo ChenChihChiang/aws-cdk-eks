@@ -9,4 +9,4 @@ echo $EKS_ADMIN_IAM_USERNAME
 pip3 install --no-cache-dir -r requirements.txt
 cdk bootstrap
 cdk list
-cdk deploy --require-approval never vpc-stack istio-eks-cluster
+cdk deploy --require-approval never vpc-stack istio-eks

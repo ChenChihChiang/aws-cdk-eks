@@ -1,0 +1,18 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: mesh-eks
+  region: ap-northeast-1
+
+nodeGroups:
+  - name: ng-1
+    minSize: 2
+    maxSize: 2
+    ssh:
+      publicKeyName: john.chen
+    instancesDistribution:
+      instanceTypes: ["c5.xlarge","c5.2xlarge"] # At least two instance types should be specified
+      onDemandBaseCapacity: 0
+      onDemandPercentageAboveBaseCapacity: 0
+      spotInstancePools: 1

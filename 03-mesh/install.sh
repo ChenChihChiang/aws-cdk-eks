@@ -33,8 +33,10 @@ aws appmesh describe-virtual-service --virtual-service-name my-service-a.my-apps
 
 aws iam create-policy --policy-name my-policy --policy-document file://proxy-auth.json
 
+EKS_CLUSTER_NAME=`aws eks list-clusters | grep mesh-eks | cut -d '"' -s -f2`
+
 /tmp/eksctl create iamserviceaccount \
-    --cluster $CLUSTER_NAME \
+    --cluster $EKS_CLUSTER_NAME \
     --namespace my-apps \
     --name my-service-a \
     --attach-policy-arn  arn:aws:iam::312490145519:policy/my-policy \

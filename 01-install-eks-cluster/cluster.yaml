@@ -4,7 +4,6 @@ kind: ClusterConfig
 metadata:
   name: mesh-eks
   region: ap-northeast-1
-  version: "1.16"
 
 nodeGroups:
   - name: ng-1

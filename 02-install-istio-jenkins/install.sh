@@ -22,6 +22,9 @@ kubectl config use-context $EKS_CLUSTER_ARN
 
 # install service mesh
 
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+
 helm init --service-account tiller --wait
 
 curl -o pre_upgrade_check.sh https://raw.githubusercontent.com/aws/eks-charts/master/stable/appmesh-controller/upgrade/pre_upgrade_check.sh

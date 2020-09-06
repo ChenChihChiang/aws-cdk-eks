@@ -62,9 +62,9 @@ helm upgrade -i appmesh-controller eks/appmesh-controller \
     --namespace appmesh-system \
     --set region=$AWS_REGION \
     --set serviceAccount.create=false \
+    --set serviceAccount.name=appmesh-controller
 
 
 kubectl get deployment appmesh-controller \
     -n appmesh-system \
     -o json  | jq -r ".spec.template.spec.containers[].image" | cut -f2 -d ':'
-    --set serviceAccount.name=appmesh-controller

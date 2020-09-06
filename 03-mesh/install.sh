@@ -32,3 +32,15 @@ kubectl describe virtualservice my-service-a -n my-apps
 aws appmesh describe-virtual-service --virtual-service-name my-service-a.my-apps.svc.cluster.local --mesh-name my-mesh
 
 aws iam create-policy --policy-name my-policy --policy-document file://proxy-auth.json
+
+eksctl create iamserviceaccount \
+    --cluster $CLUSTER_NAME \
+    --namespace my-apps \
+    --name my-service-a \
+    --attach-policy-arn  arn:aws:iam::312490145519:policy/my-policy \
+    --override-existing-serviceaccounts \
+    --approve
+    
+ kubectl apply -f example-service.yaml
+ 
+ kubectl -n my-apps get pods

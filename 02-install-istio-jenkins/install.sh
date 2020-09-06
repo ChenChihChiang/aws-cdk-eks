@@ -22,7 +22,7 @@ kubectl config use-context $EKS_CLUSTER_ARN
 
 # install service mesh
 
-helm init --service-account tiller --wait
+helm init --wait
 
 curl -o pre_upgrade_check.sh https://raw.githubusercontent.com/aws/eks-charts/master/stable/appmesh-controller/upgrade/pre_upgrade_check.sh
 

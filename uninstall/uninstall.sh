@@ -14,4 +14,3 @@ export EKS_ADMIN_IAM_USERNAME=`aws sts get-caller-identity | jq '.Arn' | cut -d 
 
 cd ../01-install-eks-cluster
 /tmp/eksctl delete cluster -f cluster.yaml
-cd ../uninstall

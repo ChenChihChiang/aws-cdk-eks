@@ -2,7 +2,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: mesh-eks
+  name: linc-eks
   region: ap-northeast-1
 
 nodeGroups:

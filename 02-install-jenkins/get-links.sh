@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ep=$(kubectl get svc istio-ingressgateway -n istio-system -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+ep=$(kubectl get svc jenkins -n jenkins -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
 
 echo "kiali"
 echo "http://${ep}:15029"

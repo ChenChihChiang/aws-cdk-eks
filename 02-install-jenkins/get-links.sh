@@ -1,15 +1,6 @@
 #!/bin/sh
 
-ep=$(kubectl get svc jenkins -n jenkins -o jsonpath="{.status.loadBalancer.ingress[0].hostname}")
+ep=$(kubectl get svc jenkins -n jenkins -o jsonpath="{.status.loadBalancer}")
 
-echo "kiali"
-echo "http://${ep}:15029"
-
-echo "grafana"
-echo "http://${ep}:15031"
-
-echo "prometheus"
-echo "http://${ep}:15030"
-
-echo "tracing"
-echo "http://${ep}:15032"
+echo "jenkins"
+echo "http://${ep}:8080"

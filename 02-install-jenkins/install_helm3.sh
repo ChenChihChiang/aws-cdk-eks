@@ -10,6 +10,8 @@ tar -zxvf helm-v3.4.0-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm
 rm -r helm-v3.4.0-linux-amd64.tar.gz  linux-amd64/
 
+helm plugin install https://github.com/databus23/helm-diff
+
 # get aws eks kube-config
 
 EKS_CLUSTER_NAME=`aws eks list-clusters | grep linc-eks | cut -d '"' -s -f2`

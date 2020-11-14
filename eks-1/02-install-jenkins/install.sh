@@ -5,6 +5,8 @@ set -x
 
 # install helm & kubectl cli
 
+export AWS_REGION=ap-northeast-1
+
 wget https://get.helm.sh/helm-v2.16.1-linux-amd64.tar.gz
 tar -zxvf helm-v2.16.1-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm

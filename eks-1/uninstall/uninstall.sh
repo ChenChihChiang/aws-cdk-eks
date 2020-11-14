@@ -4,11 +4,13 @@ set -x
 
 # delete kubernetes resources
 
-helm delete --purge jenkins
+export AWS_REGION=ap-northeast-1
 
-kubectl delete pvc jenkins -n jenkins
+helm delete --purge jenkins  --context john.chen@linc-eks-1.ap-northeast-1.eksctl.io
 
-kubectl delete namespace jenkins
+kubectl delete pvc jenkins -n jenkins --context john.chen@linc-eks-1.ap-northeast-1.eksctl.io
+
+kubectl delete namespace jenkins --context john.chen@linc-eks-1.ap-northeast-1.eksctl.io
 
 export EKS_ADMIN_IAM_USERNAME=`aws sts get-caller-identity | jq '.Arn' | cut -d '"' -s -f2`
 

@@ -4,6 +4,8 @@ set -x
 
 # delete kubernetes resources
 
+export AWS_REGION=ap-northeast-2
+
 helm delete --purge jenkins --context john.chen@linc-eks-2.ap-northeast-2.eksctl.io 
 
 kubectl delete pvc jenkins -n jenkins --context john.chen@linc-eks-2.ap-northeast-2.eksctl.io 

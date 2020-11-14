@@ -9,7 +9,7 @@ spec:
       labels:
         app: nginx
     spec:
-      replicas: 3
+      replicas: 4
       selector:
         matchLabels:
           app: nginx
@@ -19,11 +19,11 @@ spec:
             app: nginx
         spec:
           containers:
-          - image: nginx
+          - image: nginx:1.19.4
             name: nginx
   placement:
     clusters:
-    - name: linc-eks.ap-northeast-1.eksctl.io
-    - name: linc-eks-2.ap-northeast-2.eksctl.io
+    - name: linc-eks-1
+    - name: linc-eks-2
     
  

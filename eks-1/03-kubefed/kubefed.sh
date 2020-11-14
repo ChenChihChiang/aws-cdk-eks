@@ -6,4 +6,5 @@ helm install --name kubefed --namespace kube-federation-system kubefed-charts/ku
 
 kubectl get pod  -n kube-federation-system
 
+kubectl -n kube-federation-system get kubefedclusters
 

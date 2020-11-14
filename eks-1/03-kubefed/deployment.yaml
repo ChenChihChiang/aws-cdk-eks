@@ -1,0 +1,29 @@
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedDeployment
+metadata:
+  name: nginx
+  namespace: prod
+spec:
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      replicas: 3
+      selector:
+        matchLabels:
+          app: nginx
+      template:
+        metadata:
+          labels:
+            app: nginx
+        spec:
+          containers:
+          - image: nginx
+            name: nginx
+  placement:
+    clusters:
+    - name: linc-eks.ap-northeast-1.eksctl.io
+    - name: linc-eks-2.ap-northeast-2.eksctl.io
+    
+ 

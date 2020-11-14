@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+
+---
+apiVersion: types.kubefed.io/v1beta1
+kind: FederatedNamespace
+metadata:
+  name: prod
+  namespace: prod
+spec:
+  placement:
+    clusters:
+    - name: linc-eks.ap-northeast-1.eksctl.io
+    - name: linc-eks-2.ap-northeast-2.eksctl.io

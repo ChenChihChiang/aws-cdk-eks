@@ -1,0 +1,242 @@
+# ------------------------------------------------------------------------ #
+# File: install-manager                                                    #
+# Copyright (c) 2010-2014 Rodrigue Chakode (rodrigue.chakode@gmail.com)    #
+# Last Update : 06-04-2015                                                 #
+#                                                                          #
+# This Software is part of RealOpInsight (http://realopinsight.com)        #
+#                                                                          #
+# This is a free software: you can redistribute it and/or modify           #
+# it under the terms of the GNU General Public License as published by     #
+# the Free Software Foundation, either version 3 of the License, or        #
+# (at your option) any later version.                                      #
+#                                                                          #
+# The Software is distributed in the hope that it will be useful,          #
+# but WITHOUT ANY WARRANTY; without even the implied warranty or           #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the	           #
+# GNU General Public License for more details.                             #
+#                                                                          #
+# You should have received a copy of the GNU General Public License        #
+# along with the Software.  If not, see <http://www.gnu.org/licenses/>.	   #
+#--------------------------------------------------------------------------#
+
+set -e
+
+QT_PROJECT_FILE=realopinsight.pro
+REALOPINSIGHT_USER=realopinsight
+REALOPINSIGHT_GROUP=$REALOPINSIGHT_USER
+REALOPINSIGHT_INSTALL_PREFIX=/opt/realopinsight
+REALOPINSIGHT_WWW=${REALOPINSIGHT_INSTALL_PREFIX}/www
+
+# Print help
+#
+usage()
+{
+  echo
+  echo "Usage: `basename $0` [OPTION]"
+  echo "OPTIONS"
+  echo "	-d <install_dir>"
+  echo "	  Sets the installation directory,  default is /opt/realopinsight."
+  echo "	-n <ncpu>"
+  echo "	  Sets the number of cpu to use for the compilation"
+  echo "	-h"
+  echo "	  Shows this help"
+}
+
+prompt_copyright()
+{ 
+  echo
+  echo "Thanks for choosing RealOpInsight."
+  echo
+  echo "You are licensed to use this software under the terms of GNU GPL-v3 License."
+  echo
+  echo "Type 'y' to accept this license offer."
+  echo "Type 'n' to decline this license offer."
+  echo "Type 'r' to view this license offer."
+  echo
+  while true; do
+    read -p "Do you accept the terms of the License ? y/N/r " rep
+    case $rep in
+	  r) more LICENSE ; echo ;;
+	  y) break ;;
+	  *) exit 0 ;; 
+    esac
+  done
+}
+
+
+check_prerequisites()
+{
+  echo -n "[DEBUG] Checking if is QT_ROOT set... "
+  [ -z "$QT_ROOT" ] && echo "[ERROR] QT_ROOT environment variable not set." && exit 1
+  echo "$QT_ROOT"
+  
+  
+  QMAKE=${QT_ROOT}/bin/qmake
+  echo -n "[DEBUG] Checking qmake... "
+  [ ! -e $QMAKE ] && echo "[ERROR] qmake not found." && exit 1
+  echo "${QMAKE}"
+  
+  QLRELEASE=${QT_ROOT}/bin/lrelease
+  echo -n "[DEBUG] Checking lrelease... "
+  [ ! -e $QLRELEASE ] && echo "[ERROR] lrelease not found." && exit 1
+  echo "${QRELEASE}" 
+  
+  echo -n "[DEBUG] Checking if WT_ROOT is set... "
+  [ -z $WT_ROOT ] && echo "[ERROR] WT_ROOT environment variable is not set." && exit 1
+  echo "$WT_ROOT"
+  
+  WT_DBO_SQLITE=${WT_ROOT}/include/Wt/Dbo/backend/Sqlite3.h
+  echo -n "[DEBUG] Checking Wt include files from $WT_ROOT... "
+  [ ! -e $WT_DBO_SQLITE ] && echo -en "[ERROR] $WT_DBO_SQLITE not found.\n => $WT_ROOT does not seem to be a Wt installation base directory." && exit 1
+  echo "done"   
+ 
+  echo -n "[DEBUG] Checking make => ${MAKE:=`which make`}... "
+  [ -z $MAKE ] && echo "[ERROR] make not found." && exit 1
+  echo "done"
+ 
+  echo -n "[DEBUG] Checking C++ compiler => ${CXX:=`which g++`}... "
+  [ -z $CXX ] && echo "[ERROR] g++ not found." && exit 1
+  echo "done"
+ 
+  echo -n "[DEBUG] Checking Graphviz => ${DOT:=`which dot`}... "
+  [ -z $DOT ] && echo "[ERROR] dot not found." && exit 1
+  echo "done"
+}
+
+
+build_web_server_binary() {
+  echo "[DEBUG] Building RealOpInsight http server..."
+  ${QMAKE} -config release $QT_PROJECT_FILE CONFIG+=webd ${dflag}
+  make -j${NCPU} 1>>install.log
+}
+
+build_dbsetup_binary() {
+  echo "[DEBUG] Building RealOpInsight http server..."
+  ${QMAKE} -config release $QT_PROJECT_FILE CONFIG+=setupdb ${dflag}
+  make -j${NCPU} 1>>install.log
+}
+
+
+build_reportd_binary() {
+  echo "[DEBUG] Building QoS Data collector..."
+  ${QMAKE} -config release $QT_PROJECT_FILE CONFIG+=reportd ${dflag}
+  make -j${NCPU} 1>>install.log
+}
+
+install_ultimate() {
+  echo "==>Installing RealOpInsight..."
+
+  if [ `id -u` -ne 0 ]; then 
+    echo "[ERROR] root privileges are required"
+    exit 1	
+  fi
+
+  # create $REALOPINSIGHT_USER user if not exist
+  id $REALOPINSIGHT_USER || useradd $REALOPINSIGHT_USER
+  
+  # check dependencies
+  check_prerequisites
+    
+  echo "[DEBUG] Generating locale file"
+  ${QLRELEASE} $QT_PROJECT_FILE
+
+  build_web_server_binary
+  build_dbsetup_binary
+  build_reportd_binary
+
+  echo "[DEBUG] Installing setting files..."
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/bin
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/sbin
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/etc
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/data
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/log
+  install -d ${REALOPINSIGHT_INSTALL_PREFIX}/run   # directory for session info and thumbnails
+  install -d ${REALOPINSIGHT_WWW}
+  install -d ${REALOPINSIGHT_WWW}/run      # directory for thumbnails
+  install -d ${REALOPINSIGHT_WWW}/resources/themes/bootstrap/img  # for missing glyphicons-halflings.png
+
+
+  echo "[DEBUG] Installing binaries and init scripts..."
+  
+  install -m 755 realopinsight-server ${REALOPINSIGHT_INSTALL_PREFIX}/sbin
+  install -m 755 realopinsight-setupdb ${REALOPINSIGHT_INSTALL_PREFIX}/sbin
+  install -m 755 realopinsight-reportd ${REALOPINSIGHT_INSTALL_PREFIX}/sbin
+    
+  install -m 644 contribs/systemd/realopinsight-server.service         /lib/systemd/system/
+  install -m 644 contribs/systemd/realopinsight-reportd.service        /lib/systemd/system/
+  install -m 644 contribs/systemd/realopinsight-server.service.env     ${REALOPINSIGHT_INSTALL_PREFIX}/etc
+  install -m 644 contribs/systemd/realopinsight-reportd.service.env    ${REALOPINSIGHT_INSTALL_PREFIX}/etc
+  
+  systemctl enable realopinsight-server.service
+  systemctl enable realopinsight-reportd.service  
+
+  install -m 755 contribs/backup/realopinsight-backup ${REALOPINSIGHT_INSTALL_PREFIX}/bin/
+  install -m 755 contribs/backup/realopinsight-restore ${REALOPINSIGHT_INSTALL_PREFIX}/bin/
+  
+  install -m 600 contribs/etc/wt_config.xml ${REALOPINSIGHT_INSTALL_PREFIX}/etc/
+  install resources/themes/img/glyphicons-halflings.png ${REALOPINSIGHT_WWW}/resources/themes/bootstrap/img
+
+  cp -r favicon.ico \
+        i18n \
+        images \
+        resources \
+        ${REALOPINSIGHT_WWW}/
+  
+  echo "[DEBUG] Settings permissions for installation directory..."
+  chmod 644 ${REALOPINSIGHT_WWW}/favicon.ico
+  chown -R $REALOPINSIGHT_USER:$REALOPINSIGHT_GROUP ${REALOPINSIGHT_INSTALL_PREFIX}/
+
+  
+  echo "[DEBUG] Starting services..."
+  systemctl start realopinsight-server.service
+  systemctl start realopinsight-reportd.service  
+}
+
+
+NCPU=1
+mflag=
+dflag=
+while getopts d:n:h name ; do
+  case $name in
+    d) dflag=1
+       install_prefix="$OPTARG"
+    ;;
+    n) NCPU=$OPTARG
+    ;;
+    h) usage;
+       exit 0
+    ;;
+    ?) usage
+     exit 1
+    ;;
+  esac
+done
+
+if ! echo $NCPU | egrep -q '^[0-9]+$'; then
+    echo "The option -n requires a number"
+    exit 1
+fi
+
+prompt_copyright
+export NCPU
+echo "DEBUG: Initializing setup with $NCPU CPU..."
+
+if [ -z "${install_prefix}" ] ; then
+  export INSTALL_PREFIX=/usr/local
+else
+  export INSTALL_PREFIX=${install_prefix}
+  export dflag="CONFIG+=dflag"
+fi
+
+if [ `id -u` -ne 0 ]; then
+  echo "DEBUG: You're performing a user mode installation"
+  echo "WARNING: You must have read/write permissions on the target directory ($INSTALL_PREFIX)"
+fi 
+
+
+install_ultimate
+
+echo "==>Installation completed"
+
+exit 0

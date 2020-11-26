@@ -1,6 +1,6 @@
 annotations:
   category: Infrastructure
-apiVersion: v1
+apiVersion: v2
 appVersion: 3.6.2
 description: A centralized service for maintaining configuration information, naming,
   providing distributed synchronization, and providing group services for distributed

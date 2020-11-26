@@ -4,11 +4,15 @@ set -x
 
 # delete kubernetes resources
 
-helm delete --purge jenkins
+helm delete jenkins -n jenkins
 
 kubectl delete pvc jenkins -n jenkins
 
 kubectl delete namespace jenkins
+
+helm delete cmak
+
+helm delete kafka
 
 export EKS_ADMIN_IAM_USERNAME=`aws sts get-caller-identity | jq '.Arn' | cut -d '"' -s -f2`
 
